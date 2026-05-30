@@ -70,8 +70,16 @@ if menu == 1:
         print('(ele apaga o cigarro depois de ter dado uma tragada)')
         proximo_dialogo = input('digite (p) para continuar\nR: ')
     print('----')
-    
-    print(f'')
+
+    print('Bom os outros estão procurando o suspeito pelas redondezas')
+    print('(ele tira do bolso uma chave)')
+    print('eu tentei dra uma vasculhada no lugar,\nmas sendo sincero não consigo ficar muito tempo nessa casa')
+    proximo_dialogo = input('digite (p) para continuar\nR: ')
+    print('(ele joga a chave na sua direção e você pega)')
+    print('não sei para você mas eu me sinto estranho quando participo de investigações assim')
+    print('talvez eu tenha um estomago fraco')
+
+    print('(ele começa a se afastar e ir )')
 
 
 elif menu == 2:
