@@ -1,3 +1,5 @@
+import random
+
 # ==========================================
 # CONFIGURAÇÕES DE DADOS (ESTADO DO JOGO)
 # ==========================================
@@ -20,28 +22,17 @@ personagem = {
     },
 }
 
+# Unificado conforme sua última versão de teste
 bestiario = {
-    "bot1": {
-        "nome": "vitima 1",
-        "hp_max": 75,
-        "hp_atual": 75,
-        "habilidades": {
-            "facada": {
-                "dano": 10,
-                "tipo": "cortante"
-            },
-            "grito ensurdecedor": {
-                "dano": 25,
-                "tipo": "trovejante"
-            },
-            "ataque inutil": {
-                "descricao": "O espírito vacila no tempo, flutuando sem reação por um instante.",
-            },
-        },
-        "resistencias": {
-            "cortante": True
-        },
-    }
+    "nome": "Vítima 1",
+    "hp_max": 75,
+    "hp_atual": 75,
+    "habilidades": {
+        1: {"ataque": "Apunhalar", "dano": 12},
+        2: {"ataque": "Ecos da Escuridão", "dano": 17},
+        3: {"ataque": "Cansaço", "dano": 0}
+    },
+    "fraqueza": "contudente"
 }
 
 itens_investigacao = {
@@ -85,13 +76,24 @@ itens_investigacao = {
     }
 }
 
+# ==========================================
+# INTERFACE VISUAL (HUD)
+# ==========================================
+
+def exibir_barra_hp(nome, hp, hp_max):
+    """Gera visualmente a barra de vida estilizada no console."""
+    if hp < 0:
+        hp = 0
+    porcentagem = int((hp / hp_max) * 10)  # Calcula a proporção para 10 blocos
+    barra = "█" * porcentagem + "░" * (10 - porcentagem)
+    print(f"{nome}: [{barra}] {hp}/{hp_max}")
+
 
 # ==========================================
 # FUNÇÕES DO JOGO (SISTEMAS MODULARES)
 # ==========================================
 
 def mostrar_cutscene_inicial(nome_detetive):
-    """Gerencia a introdução e o diálogo com Rubert."""
     print('\n--- CUTSCENE ---')
     print(f'Você é {nome_detetive}, um detetive especializado em investigar assassinatos.')
     print('Você chegou em casa cansado depois de analisar diferentes relatórios de mortes estranhas.')
@@ -135,7 +137,6 @@ def mostrar_cutscene_inicial(nome_detetive):
 
 
 def iniciar_investigacao(ato):
-    """Gerencia o loop de busca de pistas e retorna a quantidade de pistas importantes vistas."""
     investigacao = 0
     pistas_importantes_encontradas = 0
     itens_do_ato = itens_investigacao[ato]
@@ -144,7 +145,6 @@ def iniciar_investigacao(ato):
         print(f'\n--- Progresso da Investigação: {investigacao}/5 itens vistos ---')
         print('Onde você deseja olhar agora?')
         
-        # Mostra o menu de pistas dinâmico
         for id_item, info in itens_do_ato.items():
             if not info["visto"]:
                 print(f"{id_item} - Analisar {info['nome']}")
@@ -180,13 +180,11 @@ def iniciar_investigacao(ato):
 
 
 def iniciar_combate(pistas_encontradas):
-    """Gerencia a batalha por turnos entre o detetive e o espírito."""
     print('\n' + '!' * 50)
     print('De repente, a porta da sala bate com força atrás de você!')
     print('A temperatura cai drasticamente e as luzes começam a piscar freneticamente.')
-    print('O espírito da Vítima 1 se materializa diante dos seus olhos!')
+    print(f'O espírito da {bestiario["nome"]} se materializa diante dos seus olhos!')
     
-    # Exemplo de utilidade para o seu sistema de "itens importantes"
     if pistas_encontradas >= 4:
         print("\n[BÔNUS DE LORE] Como você descobriu quase toda a história do crime,")
         print("você compreende a dor do espírito e não é pego de surpresa!")
@@ -197,23 +195,108 @@ def iniciar_combate(pistas_encontradas):
 
     input('[Aperte Enter para iniciar o COMBATE]')
 
-    # Variáveis locais para controlar a vida durante a batalha
+    # Sincronizando variáveis locais com os dicionários globais
+    nome_player = personagem["nome"]
     hp_player = personagem["hp_atual"]
-    inimigo_hp = bestiario["bot1"]["hp_atual"]
-    inimigo_nome = bestiario["bot1"]["nome"]
+    hp_max_player = personagem["hp_max"]
+    
+    inimigo_nome = bestiario["nome"]
+    inimigo_hp = bestiario["hp_atual"]
+    inimigo_hp_max = bestiario["hp_max"]
 
     while hp_player > 0 and inimigo_hp > 0:
-        print(f'\n=== TURNO DE COMBATE ===')
-        print(f'Detetive {personagem["nome"]} | HP: {hp_player}/{personagem["hp_max"]}')
-        print(f'{inimigo_nome} | HP: {inimigo_hp}/{bestiario["bot1"]["hp_max"]}')
-        print('------------------------')
-        print('Escolha sua ação:')
-        print('1 - Atacar com Cassetete (Dano: 10 | Tipo: Contundente)')
-        print(f'2 - Atirar com Pistola (Dano: 25 | Mun: {personagem["habilidades"]["pistola"]["mun_atual"]}/{personagem["habilidades"]["pistola"]["mun_max"]})')
+        print(f'\n========================================')
+        exibir_barra_hp(nome_player, hp_player, hp_max_player)
+        exibir_barra_hp(inimigo_nome, inimigo_hp, inimigo_hp_max)
+        print(f'Munição Pistola: {personagem["habilidades"]["pistola"]["mun_atual"]}/{personagem["habilidades"]["pistola"]["mun_max"]}')
+        print('========================================')
         
-        # O Combate acontecerá aqui! Por enquanto, um break para o código rodar sem travar.
-        print("\n[Sistema de combate pronto para ser programado no próximo passo!]")
-        break
+        print("Comandos: [a] ATACAR | [d] DEFENDER | [f] FUGIR")
+        comando = input("⬆️ Digite um dos comandos acima ⬆️: ").strip().lower()
+        
+        if comando in ["a", "atacar", "ataca"]:
+            acao = "a"
+        elif comando in ["d", "defender", "defende", "defesa"]:
+            acao = "d"
+        elif comando in ["f", "fuga", "fugir"]:
+            acao = "f"
+        else:
+            print("\n[!] Comando inválido! Você hesitou e perdeu o foco.")
+            acao = "invalido"
+
+        match acao:
+            case "a":
+                print(f"\nOpções: [pistola] para disparo rápido | [cassetete] para golpes contundentes")
+                escolha = input("Escolha sua habilidade R: ").strip().lower()
+                
+                dano_causado = 0
+                ataque_valido = False
+
+                match escolha:
+                    case "pistola":
+                        if personagem["habilidades"]["pistola"]["mun_atual"] > 0:
+                            personagem["habilidades"]["pistola"]["mun_atual"] -= 1
+                            dano_causado = personagem["habilidades"]["pistola"]["dano"]
+                            ataque_valido = True
+                            print("\n💥 BANG! Você disparou contra o espírito.")
+                            
+                            if bestiario["fraqueza"] == "perfurante":
+                                dano_causado *= 2
+                                print("🔥 GOLPE CRÍTICO! O dano perfurante perfura a névoa espiritual!")
+                        else:
+                            print("\n⚠️ CLIQUE! A pistola está sem munição!")
+                            
+                    case "cassetete":
+                        dano_causado = personagem["habilidades"]["cassetete"]["dano"]
+                        ataque_valido = True
+                        print("\n💥 TROW! Você desferiu um golpe de cassetete.")
+                        
+                        if bestiario["fraqueza"] == "contudente":
+                            dano_causado *= 2
+                            print("🔥 GOLPE CRÍTICO! O impacto quebra a barreira de ectoplasma!")
+                    case _:
+                        print("\n[!] Arma inválida! Você atacou no vento.")
+
+                if ataque_valido:
+                    inimigo_hp -= dano_causado
+                    print(f"Você causou {dano_causado} de dano ao espírito.")
+
+                # Turno de Contra-Ataque do Espírito (se ele ainda estiver vivo)
+                if inimigo_hp > 0:
+                    r = random.randint(1, 3)
+                    ataque_inimigo = bestiario["habilidades"][r]
+                    hp_player -= ataque_inimigo["dano"]
+                    print(f"\n👻 {inimigo_nome} revidou com [{ataque_inimigo['ataque']}] causando {ataque_inimigo['dano']} de dano!")
+                
+            case "d": 
+                # Defesa: reduz o dano do ataque sorteado pela metade
+                r = random.randint(1, 3)
+                ataque_inimigo = bestiario["habilidades"][r]
+                dano_reduzido = int(ataque_inimigo["dano"] * 0.5)
+                hp_player -= dano_reduzido
+
+                print(f"\n🛡️ Você se protegeu! [{ataque_inimigo['ataque']}] causaria {ataque_inimigo['dano']}, mas você sofreu apenas {dano_reduzido}!")
+
+            case "f":
+                # Fuga falha: toma o dano total do ataque sorteado
+                r = random.randint(1, 3)
+                ataque_inimigo = bestiario["habilidades"][r]
+                hp_player -= ataque_inimigo["dano"]
+
+                print(f"\n🏃‍♂️ Você tentou correr para a saída, mas as portas estão trancadas!")
+                print(f"👻 O espírito te pegou pelas costas com [{ataque_inimigo['ataque']}] causando {ataque_inimigo['dano']} de dano!")
+                print("Você falhou ao fugir!")
+
+    # --- VERIFICAÇÃO DE FINAL DE COMBATE ---
+    print('\n========================================')
+    if hp_player <= 0:
+        print("💀 Seu HP chegou a 0. A frieza da morte toma sua consciência...")
+        print("=== GAME OVER ===")
+    elif inimigo_hp <= 0:
+        print(f"✨ O espírito da {inimigo_nome} solta um último suspiro e se dissipa no ar...")
+        print("A sala volta a ficar silenciosa. O Ato 1 foi superado!")
+        print("=== VITÓRIA ===")
+    print('========================================')
 
 
 # ==========================================
@@ -229,10 +312,8 @@ except ValueError:
     menu = 3
 
 if menu == 1:
-    # 1. Executa a Introdução
     mostrar_cutscene_inicial(personagem["nome"])
     
-    # 2. Entrada na Casa (Loop de Decisão de Entrada)
     while True:
         print('\n----')
         print('Você olha para a casa. Ela é uma casa comum de dois andares,\nvocê consegue ver algumas luzes acesas pela janela.')
@@ -252,10 +333,7 @@ if menu == 1:
             print('mas o que mais chama atenção é a demarcação de um cadáver no chão e sangue.')
             print('"Lá vamos nós..."')
             
-            # 3. Chama o sistema modular de investigação
             pistas_chave = iniciar_investigacao("ato1")
-            
-            # 4. Vai direto para o combate ao terminar de coletar 5 pistas
             iniciar_combate(pistas_chave)
             break
             
@@ -267,4 +345,4 @@ if menu == 1:
 elif menu == 2:
     print('\nAinda em desenvolvimento (o desenvolvedor narigudo não veio).')
 elif menu == 3:
-    print('\nPor que tu entrou no meu jogo se tu ia sair?\nAinda assim, muito obrigado por ter perdido o seu tempo :)')
+    print('\nPorque tu entrou no meu jogo se tu ia sair?\nAinda sim, muito obrigado por ter perdido o seu tempo :)')
