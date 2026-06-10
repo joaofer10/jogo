@@ -68,16 +68,36 @@ itens_investigacao = {
             "importante": True,
             "visto": False
             },
-        2: {"nome": "marcas de arranhão na porta",
+        2: {
+            "nome": "marcas de arranhão na porta",
             "lore": "Há marcas profundas perto da fechadura da cozinha... Alguém tentou trancar a porta por dentro desesperadamente para se proteger.",
             "importante": True,
             "visto": False
             },
-        3: {"nome": "jantar mofado",
-             "lore": "O jantar servido na mesa está coberto de mofo. Parece que o ataque aconteceu no exato momento em que comiam.", "importante": False, "visto": False},
-        4: {"nome": "frasco de sedativo", "lore": "Atrás dos potes de tempero, você encontra um frasco de tarja preta. Quase vazio. Foi usado para dopar alguém?", "importante": True, "visto": False},
-        5: {"nome": "gravador de fita cassete", "lore": "Você aperta o play. Uma discussão violenta ecoa por alguns segundos seguidos por um grito de horror agudo.", "importante": True, "visto": False},
-        6: {"nome": "utensílios estilhaçados", "lore": "Pratos e copos quebrados no chão indicam que houve uma luta corporal violenta neste cômodo.", "importante": False, "visto": False}
+        3: {
+            "nome": "jantar mofado",
+            "lore": "O jantar servido na mesa está coberto de mofo. Parece que o ataque aconteceu no exato momento em que comiam.",
+            "importante": False,
+            "visto": False
+            },
+        4: {
+            "nome": "frasco de sedativo",
+            "lore": "Atrás dos potes de tempero, você encontra um frasco de tarja preta. Quase vazio. Foi usado para dopar alguém?",
+            "importante": True,
+            "visto": False
+            },
+        5: {
+            "nome": "gravador de fita cassete",
+            "lore": "Você aperta o play. Uma discussão violenta ecoa por alguns segundos seguidos por um grito de horror agudo.",
+            "importante": True,
+            "visto": False
+            },
+        6: {
+            "nome": "utensílios estilhaçados",
+            "lore": "Pratos e copos quebrados no chão indicam que houve uma luta corporal violenta neste cômodo.",
+            "importante": False,
+            "visto": False
+            }
     }
 }
 
