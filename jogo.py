@@ -74,28 +74,28 @@ itens_investigacao = {
         6: {"nome": "relogio quebrado", "lore": "O relógio está quebrado no chão, nele marca 22:53.", "importante": True, "visto": False}
     },
     "ato2": {
+        1: {"nome": "quadro de casal destruído", "lore": "O quadro que decorava o corredor foi arrancado e jogado na parede. O vidro está estilhaçado e a foto do marido foi violentamente riscada com algo afiado.", "importante": True, "visto": False},
+        2: {"nome": "bilhete amoroso rasgado", "lore": "Pedaços de papel no chão do corredor formam uma carta de amor secreta: 'Mal posso esperar para quando ele não estiver em casa...'", "importante": True, "visto": False},
+        3: {"nome": "marcas de arrastamento", "lore": "Marcas escuras no piso do corredor indicam que um corpo pesado foi arrastado em direção à porta trancada do porão.", "importante": True, "visto": False},
+        4: {"nome": "lamparina quebrada", "lore": "Uma fonte de luz despedaçada no chão. O óleo derramado ainda cheira forte, indicando um confronto físico recente e desesperado no corredor.", "importante": False, "visto": False}
+    },
+    "ato3": { 
         1: {
-            "nome": "quadro de casal destruído", 
-            "lore": "O quadro que decorava o corredor foi arrancado e jogado na parede. O vidro está estilhaçado e a foto do marido foi violentamente riscada com algo afiado.", 
+            "nome": "frasco de veneno de rato vazio", 
+            "lore": "Um frasco de veneno jogado perto do altar. O Marido ingeriu o conteúdo em seus últimos momentos, tentando cometer suicídio para fugir da polícia após o duplo homicídio. O veneno agora corre em suas veias espirituais.", 
             "importante": True, 
             "visto": False
         },
         2: {
-            "nome": "bilhete amoroso rasgado", 
-            "lore": "Pedaços de papel no chão do corredor formam uma carta de amor secreta: 'Mal posso esperar para quando ele não estiver em casa...'", 
+            "nome": "altar do ritual fracassado", 
+            "lore": "Um cadáver mutilado serve de oferenda no centro de um círculo místico. Notas rabiscadas no chão mostram que o Marido tentou um ritual de ressurreição ou barganha que deu 'errado'... Em vez de salvação, sua alma foi distorcida pelo puro rancor.", 
             "importante": True, 
             "visto": False
         },
         3: {
-            "nome": "marcas de arrastamento", 
-            "lore": "Marcas escuras no piso do corredor indicam que um corpo pesado foi arrastado em direção à porta trancada do porão.", 
+            "nome": "cartas de desespero e rancor", 
+            "lore": "Páginas manchadas de vômito e sangue revelam os últimos pensamentos dele: 'O ritual não funcionou, eles ainda estão mortos e eu estou queimando por dentro...'. O veneno o matou, mas o rancor o trouxe de volta como algo pior.", 
             "importante": True, 
-            "visto": False
-        },
-        4: {
-            "nome": "lamparina quebrada", 
-            "lore": "Uma fonte de luz despedaçada no chão. O óleo derramado ainda cheira forte, indicando um confronto físico recente e desesperado no corredor.", 
-            "importante": False, 
             "visto": False
         }
     }
@@ -162,8 +162,8 @@ def iniciar_investigacao(ato):
         pistas_importantes_encontradas = 0
         itens_do_ato = itens_investigacao[ato]
         
-        # Define o limite: se for Ato 2 (corredor rápido) o limite é 3, senão é 5
-        limite = 3 if ato == "ato2" else 5
+        # Define o limite dinamicamente por ato
+        limite = 3 if ato in ["ato2", "ato3"] else 5
 
         while investigacao < limite:
             print(f'\n--- Progresso da Investigação: {investigacao}/{limite} itens vistos ---')
@@ -305,8 +305,9 @@ def combate(dados_monstro):
         return True
 
 def manifestacao_sobrenatural(pistas, ato):
-    # Define o total de pistas possíveis baseado no ato para calcular a performance
-    total_pistas = 3 if ato == "ato2" else 5
+    
+    # Define o total de pistas possíveis baseado no ato
+    total_pistas = 3 if ato in ["ato2", "ato3"] else 5
     
     print("\n🔮 [SINTONIA SOBRENATURAL]")
     print("Ao desvendar os segredos do ambiente, uma energia gélida ecoa pela sala...")
@@ -405,10 +406,47 @@ if menu == 1:
         
         if not vitoria_ato2:
             break
-        # --- TRANSIÇÃO PARA OS PRÓXIMOS ATOS (PORÃO / QUARTO) ---
-        print("\nVocê ouve um estalo vindo das escadas do segundo andar...")
-        print("Continua no próximo ato!")
-        break
+        # --- TRANSIÇÃO PARA O ATO 3 (O PORÃO) ---
+        print('\nVocê ouve um estalo vindo de uma porta pesada no fim do corredor...')
+        print('É a entrada do porão. Está trancada por correntes pesadas.')
+        
+        # Verifica se o jogador derrotou o amante e pegou a chave
+        if "Chave do Porão" in personagem["inventario"]:
+            print("\n[!] Você usa a CHAVE DO PORÃO deixada pelo espírito do Amante.")
+            print("As correntes caem com um estrondo metálico. O cheiro de podridão e produtos químicos invade suas narinas.")
+            input('\n[Girar a maçaneta e descer os degraus...]')
+        else:
+            print("\nA porta está trancada magneticamente por forças ocultas e você não tem a chave. Fim da linha.")
+            break
+            
+        print('\n' + '='*60)
+        print('           ATO 3: O RITUAL DA AGONIA (O PORÃO)')
+        print('='*60)
+        print('O porão é escuro, úmido e imundo. Paredes descascadas revelam símbolos profanos.')
+        print('Ao fundo, você consegue ver o horror em seu estado mais puro.')
+        print('Antes de confrontar o mal definitivo, você precisa entender o tamanho da loucura desse homem...')
+        input('\n[Investigar o porão...]')
+        
+        # --- EXECUÇÃO DO ATO 3 ---
+        pistas_ato3 = iniciar_investigacao("ato3")
+        
+        # Manifestação sobrenatural antes do chefe final
+        manifestacao_sobrenatural(pistas_ato3, "ato3")
+        
+        # Luta final contra o Marido (ID 3)
+        # Resetando a fúria para garantir que a mecânica funcione
+        furia_ativada = False 
+        vitoria_final = combate(bestiario[3])
+        
+        if vitoria_final:
+            print('\n' + '='*60)
+            print('🎉 PARABÉNS! VOCÊ SOLUCIONOU O CASO!')
+            print('='*60)
+            print(f'Com o Marido purificado, o Dossiê final foi recuperado.')
+            print('JT caminha para fora da casa enquanto as primeiras luzes da manhã surgem.')
+            print('O terror acabou... por enquanto.')
+        
+        break # Fim do Loop do jogo principal
 
 elif menu == 2:
     print('\nAinda em desenvolvimento (o desenvolvedor narigudo não veio).')
