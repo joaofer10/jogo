@@ -1,9 +1,5 @@
 import random
 
-    # ==========================================
-    # CONFIGURAÇÕES DE DADOS (ESTADO DO JOGO)
-    # ==========================================
-
 # ==========================================
 # CONFIGURAÇÕES DE DADOS (ESTADO DO JOGO)
 # ==========================================
@@ -12,6 +8,7 @@ personagem = {
     "nome": "JT",
     "hp_max": 100,
     "hp_atual": 100,
+    "inventario": [],  
     "habilidades": {
         "cassetete": {
             "dano": 10,
@@ -26,29 +23,44 @@ personagem = {
     },
 }
 
-# Agora o bestiário suporta múltiplos monstros de forma profissional!
 bestiario = {
-    "monstro_ato1": {
-        "nome": "Vítima 1 (O Espírito Desolado)",
+    1: {
+        "id": 1,
+        "nome": "mulher (O Espírito Desolado)",
         "hp_max": 75,
         "hp_atual": 75,
         "habilidades": {
-            1: {"ataque": "Apunhalar", "dano": 12},
+            1: {"ataque": "apunhalar", "dano": 12},
             2: {"ataque": "Ecos da Escuridão", "dano": 17},
             3: {"ataque": "Cansaço", "dano": 0}
         },
-        "fraqueza": "contudente"
+        "fraqueza": "contudente",
+        "drop": None
     },
-    "monstro_ato2": {
+    2: {
+        "id": 2,
         "nome": "amante (Espírito Furioso)",
-        "hp_max": 115,  
-        "hp_atual": 115,
+        "hp_max": 55,  
+        "hp_atual": 55,
         "habilidades": {
-            1: {"ataque": "Correntes da Culpa", "dano": 15},
-            2: {"ataque": "Rancor Cegante", "dano": 22},
-            3: {"ataque": "Sopro de Gelo", "dano": 0}
+            1: {"ataque": "gancho", "dano": 20},
+            2: {"ataque": "dilacerar", "dano": 25},
+            3: {"ataque": "ansioso", "dano": 0} 
         },
-        "fraqueza": "perfurante"  
+        "fraqueza": "perfurante",
+        "drop": "Chave do Porão"  
+    },
+    3: {
+        "id": 3,
+        "nome": "marido (O Monstro Final)",
+        "hp_max": 150,
+        "hp_atual": 150,
+        "habilidades": {
+            1: {"ataque": "cuspe de veneno", "dano": 22},
+            2: {"ataque": "arranhão venenoso", "dano": 30},
+        },
+        "fraqueza": None,
+        "drop": "Dossiê do Caso Encerrado"
     }
 }
 
@@ -63,111 +75,98 @@ itens_investigacao = {
     },
     "ato2": {
         1: {
-            "nome": "apólice de seguro de vida",
-            "lore": "Escondida no fundo de uma gaveta de armário. Um seguro de valor altíssimo no nome da esposa. O único beneficiário? O marido.",
-            "importante": True,
+            "nome": "quadro de casal destruído", 
+            "lore": "O quadro que decorava o corredor foi arrancado e jogado na parede. O vidro está estilhaçado e a foto do marido foi violentamente riscada com algo afiado.", 
+            "importante": True, 
             "visto": False
-            },
+        },
         2: {
-            "nome": "marcas de arranhão na porta",
-            "lore": "Há marcas profundas perto da fechadura da cozinha... Alguém tentou trancar a porta por dentro desesperadamente para se proteger.",
-            "importante": True,
+            "nome": "bilhete amoroso rasgado", 
+            "lore": "Pedaços de papel no chão do corredor formam uma carta de amor secreta: 'Mal posso esperar para quando ele não estiver em casa...'", 
+            "importante": True, 
             "visto": False
-            },
+        },
         3: {
-            "nome": "jantar mofado",
-            "lore": "O jantar servido na mesa está coberto de mofo. Parece que o ataque aconteceu no exato momento em que comiam.",
-            "importante": False,
+            "nome": "marcas de arrastamento", 
+            "lore": "Marcas escuras no piso do corredor indicam que um corpo pesado foi arrastado em direção à porta trancada do porão.", 
+            "importante": True, 
             "visto": False
-            },
+        },
         4: {
-            "nome": "frasco de sedativo",
-            "lore": "Atrás dos potes de tempero, você encontra um frasco de tarja preta. Quase vazio. Foi usado para dopar alguém?",
-            "importante": True,
+            "nome": "lamparina quebrada", 
+            "lore": "Uma fonte de luz despedaçada no chão. O óleo derramado ainda cheira forte, indicando um confronto físico recente e desesperado no corredor.", 
+            "importante": False, 
             "visto": False
-            },
-        5: {
-            "nome": "gravador de fita cassete",
-            "lore": "Você aperta o play. Uma discussão violenta ecoa por alguns segundos seguidos por um grito de horror agudo.",
-            "importante": True,
-            "visto": False
-            },
-        6: {
-            "nome": "utensílios estilhaçados",
-            "lore": "Pratos e copos quebrados no chão indicam que houve uma luta corporal violenta neste cômodo.",
-            "importante": False,
-            "visto": False
-            }
+        }
     }
 }
 
-    # ==========================================
-    # INTERFACE VISUAL (HUD)
-    # ==========================================
+# ==========================================
+# INTERFACE VISUAL (HUD)
+# ==========================================
 
 def exibir_barra_hp(nome, hp, hp_max):
-        """Gera visualmente a barra de vida estilizada no console."""
-        if hp < 0:
-            hp = 0
-        porcentagem = int((hp / hp_max) * 10)  # Calcula a proporção para 10 blocos
-        barra = "█" * porcentagem + "░" * (10 - porcentagem)
-        print(f"{nome}: [{barra}] {hp}/{hp_max}")
+    if hp < 0: hp = 0
+    porcentagem = int((hp / hp_max) * 10)  
+    barra = "█" * porcentagem + "░" * (10 - porcentagem)  
+    print(f"{nome}: [{barra}] {hp}/{hp_max}")
 
-
-    # ==========================================
-    # FUNÇÕES DO JOGO (SISTEMAS MODULARES)
-    # ==========================================
+# ==========================================
+# FUNÇÕES DO JOGO (SISTEMAS MODULARES)
+# ==========================================
 
 def mostrar_cutscene_inicial(nome_detetive):
-        print('\n--- CUTSCENE ---')
-        print(f'Você é {nome_detetive}, um detetive especializado em investigar assassinatos.')
-        print('Você chegou em casa cansado depois de analisar diferentes relatórios de mortes estranhas.')
-        print('Antes que possa descansar, você recebe uma ligação dizendo que na rua XXXXXXXXX\nna casa de número XXX foram encontrados dois corpos.')
-        print('----')
-        print('Chegando no local, o policial Rubert, seu colega, te espera...')
-        print('----')
-        input('Digite qualquer tecla para continuar... ')
+    print('\n--- CUTSCENE ---')
+    print(f'Você é {nome_detetive}, um detetive especializado em investigar assassinatos.')
+    print('Você chegou em casa cansado depois de analisar diferentes relatórios de mortes estranhas.')
+    print('Antes que possa descansar, você recebe uma ligação dizendo que na rua XXXXXXXXX\nna casa de número XXX foram encontrados dois corpos.')
+    print('----')
+    print('Chegando no local, o policial Rubert, seu colega, te espera...')
+    print('----')
+    input('Digite qualquer tecla para continuar... ')
 
-        print('\nATO 0: INÍCIO')
-        print('----')
-        print('(Com um cigarro na boca e cara de cansado, Rubert diz)')
-        print(f'Rubert: - Boa noite, {nome_detetive}, como você está?')
-        print('\nOpções de resposta:\n1 - Boa noite Rubert, estou bem e você?\n2 - Vamos cortar as apresentações, cadê os outros?\n3 - Que desperdício de palavras.')
-        
-        try:
-            escolha = int(input(f'R: '))
-        except ValueError:
-            escolha = 1
+    print('\nATO 0: INÍCIO')
+    print('----')
+    print('(Com um cigarro na boca e cara de cansado, Rubert diz)')
+    print(f'Rubert: - Boa noite, {nome_detetive}, como você está?')
+    print('\nOpções de resposta:\n1 - Boa noite Rubert, estou bem e você?\n2 - Vamos cortar as apresentações, cadê os outros?\n3 - Que desperdício de palavras.')
+    
+    try:
+        escolha = int(input(f'R: '))
+    except ValueError:
+        escolha = 1
 
-        print('----')
-        if escolha == 1:
-            print('Rubert: - Na medida do possível sim.')
-        elif escolha == 2:
-            print('Rubert: - Como sempre, priorizando a eficiência...')
-        else:
-            print('Rubert: - Você sabe que ser assim não te deixa mais maneiro, né?\nIsso parece fala de protagonista de filmes ou jogos de policiais, é vergonhoso.')
-        
-        print('(Ele apaga o cigarro depois de ter dado uma tragada)')
-        input('Digite qualquer tecla para continuar... ')
-        print('----')
+    print('----')
+    if escolha == 1:
+        print('Rubert: - Na medida do possível sim.')
+    elif escolha == 2:
+        print('Rubert: - Como sempre, priorizando a eficiência...')
+    else:
+        print('Rubert: - Você sabe que ser assim não te deixa mais maneiro, né?\nIsso parece fala de protagonista de filmes ou jogos de policiais, é vergonhoso.')
+    
+    print('(Ele apaga o cigarro depois de ter dado uma tragada)')
+    input('Digite qualquer tecla para continuar... ')
+    print('----')
 
-        print('Rubert: - Bom, os outros estão procurando o suspeito pelas redondezas.')
-        print('(Ele tira do bolso uma chave)')
-        print('Rubert: - Eu tentei dar uma vasculhada no lugar, mas sendo sincero não consigo ficar muito tempo nessa casa.')
-        print('(Ele joga a chave na sua direção e você pega)')
-        input('Digite qualquer tecla para continuar... ')
-        print('Rubert: - Não sei para você, mas eu me sinto estranho quando participo de investigações assim.\nTalvez eu tenha um estômago fraco.')
-        print('(Ele começa a se afastar e vai embora)')
-        input('Digite qualquer tecla para continuar... ')
-
+    print('Rubert: - Bom, os outros estão procurando o suspeito pelas redondezas.')
+    print('(Ele tira do bolso uma chave)')
+    print('Rubert: - Eu tentei dar uma vasculhada no lugar, mas sendo sincero não consigo ficar muito tempo nessa casa.')
+    print('(Ele joga a chave na sua direção e você pega)')
+    input('Digite qualquer tecla para continuar... ')
+    print('Rubert: - Não sei para você, mas eu me sinto estranho quando participo de investigações assim.\nTalvez eu tenha um estômago fraco.')
+    print('(Ele começa a se afastar e vai embora)')
+    input('Digite qualquer tecla para continuar... ')
 
 def iniciar_investigacao(ato):
         investigacao = 0
         pistas_importantes_encontradas = 0
         itens_do_ato = itens_investigacao[ato]
+        
+        # Define o limite: se for Ato 2 (corredor rápido) o limite é 3, senão é 5
+        limite = 3 if ato == "ato2" else 5
 
-        while investigacao < 5:
-            print(f'\n--- Progresso da Investigação: {investigacao}/5 itens vistos ---')
+        while investigacao < limite:
+            print(f'\n--- Progresso da Investigação: {investigacao}/{limite} itens vistos ---')
             print('Onde você deseja olhar agora?')
             
             for id_item, info in itens_do_ato.items():
@@ -203,189 +202,215 @@ def iniciar_investigacao(ato):
                 
         return pistas_importantes_encontradas
 
-
-def iniciar_combate(pistas_encontradas, id_monstro):
-    # Buscando dinamicamente o monstro correto passado por parâmetro
-    dados_monstro = bestiario[id_monstro]
-
-    print('\n' + '!' * 50)
-    print('A temperatura cai drasticamente e as luzes começam a piscar freneticamente.')
-    print(f'O espírito de {dados_monstro["nome"]} se materializa diante dos seus olhos!')
-    
-    if pistas_encontradas >= 4:
-        print("\n[BÔNUS DE LORE] Como você descobriu quase toda a história deste cômodo,")
-        print("você compreende a dor do espírito e se antecipa ao ataque!")
-    else:
-        print("\n[ALERTA] Sem pistas cruciais, você fica desorientado.")
-        print("O espírito avança furioso e descontrolado!")
-    print('!' * 50 + '\n')
-
-    input('[Aperte Enter para iniciar o COMBATE]')
-
+def combate(dados_monstro):
     nome_player = personagem["nome"]
-    hp_player =  personagem["hp_atual"]
-    hp_max_player = personagem["hp_max"]
+    pistola = personagem["habilidades"]["pistola"]
+    cassetete = personagem["habilidades"]["cassetete"]
     
-    inimigo_nome = dados_monstro["nome"]
-    inimigo_hp = dados_monstro["hp_atual"]
-    inimigo_hp_max = dados_monstro["hp_max"]
-
-    while hp_player > 0 and inimigo_hp > 0:
-        print(f'\n========================================')
-        exibir_barra_hp(nome_player, hp_player, hp_max_player)
-        exibir_barra_hp(inimigo_nome, inimigo_hp, inimigo_hp_max)
-        print(f'Munição Pistola: {personagem["habilidades"]["pistola"]["mun_atual"]}/{personagem["habilidades"]["pistola"]["mun_max"]}')
-        print('========================================')
+    print(f"\n💥 O combate contra {dados_monstro['nome'].upper()} começou!")
+    
+    while personagem["hp_atual"] > 0 and dados_monstro["hp_atual"] > 0: 
+        print("\n" + "="*40)
+        exibir_barra_hp(nome_player, personagem["hp_atual"], personagem["hp_max"])
+        exibir_barra_hp(dados_monstro["nome"], dados_monstro["hp_atual"], dados_monstro["hp_max"])
+        print(f"Munição da Pistola: {pistola['mun_atual']}/{pistola['mun_max']}")
+        print("="*40)
         
         print("Comandos: [a] ATACAR | [d] DEFENDER | [f] FUGIR")
-        comando = input("⬆️ Digite um dos comandos acima ⬆️: ").strip().lower()
+        comando = input("⬆️ Digite um dos comandos acima: ").strip().lower()
         
         if comando in ["a", "atacar", "ataca"]:
             acao = "a"
-        elif comando in ["d", "defender", "defende", "defesa"]:
+        elif comando in ["d", "defender", "defesa"]:
             acao = "d"
         elif comando in ["f", "fuga", "fugir"]:
             acao = "f"
         else:
-            print("\n[!] Comando inválido! Você hesitou e perdeu o foco.")
             acao = "invalido"
 
         match acao:
             case "a":
-                print(f"\nOpções: [pistola] para disparo rápido | [cassetete] para golpes contundentes")
-                escolha = input("Escolha sua habilidade R: ").strip().lower()
+                print(f"\nOpções: [pistola] (Dano: {pistola['dano']}) | [cassetete] (Dano: {cassetete['dano']})")
+                escolha = input("Escolha sua habilidade: ").strip().lower()
                 
                 dano_causado = 0
                 ataque_valido = False
-
-                match escolha:
-                    case "pistola":
-                        if personagem["habilidades"]["pistola"]["mun_atual"] > 0:
-                            personagem["habilidades"]["pistola"]["mun_atual"] -= 1
-                            dano_causado = personagem["habilidades"]["pistola"]["dano"]
-                            ataque_valido = True
-                            print("\n💥 BANG! Você disparou contra o espírito.")
-                            
-                            if dados_monstro["fraqueza"] == "perfurante":
-                                dano_causado *= 2
-                                print("🔥 GOLPE CRÍTICO! O dano perfurante rompe a névoa espiritual!")
-                        else:
-                            print("\n⚠️ CLIQUE! A pistola está sem munição!")
-                            
-                    case "cassetete":
-                        dano_causado = penultimate_dano = personagem["habilidades"]["cassetete"]["dano"]
-                        ataque_valido = True
-                        print("\n💥 TROW! Você desferiu um golpe de cassetete.")
-                        
-                        if dados_monstro["fraqueza"] == "contudente":
-                            dano_causado *= 2
-                            print("🔥 GOLPE CRÍTICO! O impacto físico quebra a barreira ectoplásmica!")
-                    case _:
-                        print("\n[!] Arma inválida! Você atacou o vento.")
-
-                if ataque_valido:
-                    inimigo_hp -= dano_causado
-                    print(f"Você causou {dano_causado} de dano ao espírito.")
-
-                if inimigo_hp > 0:
-                    r = random.randint(1, 3)
-                    ataque_inimigo = dados_monstro["habilidades"][r]
-                    hp_player -= ataque_inimigo["dano"]
-                    print(f"\n👻 {inimigo_nome} revidou com [{ataque_inimigo['ataque']}] causando {ataque_inimigo['dano']} de dano!")
                 
+                if escolha == "pistola":
+                    if  pistola["mun_atual"] > 0:
+                        pistola["mun_atual"] -= 1 
+                        dano_causado = pistola["dano"]
+                        ataque_valido = True
+                        print("\n💥 BANG! Você disparou contra o espírito.")
+                        if dados_monstro.get("fraqueza") == "perfurante":
+                            dano_causado *= 2
+                            print("🔥 CRÍTICO! O dano perfurante perfura a névoa!")
+                    else:
+                        print("\n⚠️ CLIQUE! A pistola está sem munição!")
+                        
+                elif escolha == "cassetete":
+                    dano_causado = cassetete["dano"]
+                    ataque_valido = True
+                    print("\n🏏 TROW! Você desferiu um golpe físico.")
+                    if dados_monstro.get("fraqueza") == "contudente":
+                        dano_causado *= 2
+                        print("🔥 CRÍTICO! O impacto esmaga a barreira ectoplásmica!")
+                else:
+                    print("\n[!] Comando inválido! Você atacou o vento.")
+                
+                if ataque_valido:
+                    dados_monstro["hp_atual"] -= dano_causado
+                
+                if dados_monstro["hp_atual"] > 0:
+                    qtd_habilidades = len(dados_monstro["habilidades"])
+                    r = random.randint(1, qtd_habilidades)
+                    ataque_inimigo = dados_monstro["habilidades"][r]
+                    personagem["hp_atual"] -= ataque_inimigo["dano"]
+                    print(f"👻 {dados_monstro['nome']} contra-atacou com [{ataque_inimigo['ataque']}] causando {ataque_inimigo['dano']} de dano!")
+
             case "d": 
-                r = random.randint(1, 3)
+                qtd_habilidades = len(dados_monstro["habilidades"])
+                r = random.randint(1, qtd_habilidades)
                 ataque_inimigo = dados_monstro["habilidades"][r]
                 dano_reduzido = int(ataque_inimigo["dano"] * 0.5)
-                hp_player -= dano_reduzido
-                print(f"\n🛡️ Você se protegeu! [{ataque_inimigo['ataque']}] causaria {ataque_inimigo['dano']}, mas você sofreu {dano_reduzido}!")
+                personagem["hp_atual"] -= dano_reduzido
+                
+                print(f"\n🛡️ Você se protegeu! O inimigo usou [{ataque_inimigo['ataque']}].")
+                print(f"Em vez de {ataque_inimigo['dano']}, você sofreu apenas {dano_reduzido} de dano.")
 
             case "f":
-                r = random.randint(1, 3)
+                qtd_habilidades = len(dados_monstro["habilidades"])
+                r = random.randint(1, qtd_habilidades)
                 ataque_inimigo = dados_monstro["habilidades"][r]
-                hp_player -= ataque_inimigo["dano"]
-                print(f"\n🏃‍♂️ As portas estão seladas pela força espiritual!")
-                print(f"👻 O espírito te interceptou com [{ataque_inimigo['ataque']}] causando {ataque_inimigo['dano']} de dano!")
+                personagem["hp_atual"] -= ataque_inimigo["dano"]
+                print(f"\n🏃‍♂️ Você falhou ao fugir! As portas estão seladas!")
+                print(f"👻 O espírito te atingiu pelas costas com [{ataque_inimigo['ataque']}] causando {ataque_inimigo['dano']} de dano.")
+            
+            case _:
+                print("\n[!] Você hesitou e perdeu o turno!")
 
-        # Atualiza a vida global do personagem para persistir entre os Atos
-        personagem["hp_atual"] = hp_player
+        if dados_monstro["id"] == 3 and dados_monstro["hp_atual"] <= dados_monstro["hp_max"] * 0.5 and dados_monstro["hp_atual"] > 0:
+            print("\n🚨 O MARIDO ENTRA EM FÚRIA! Seus ataques parecem mais rápidos!")
 
-    print('\n========================================')
-    if hp_player <= 0:
-        print("💀 Seu HP chegou a 0. A frieza da morte toma sua consciência...")
-        print("=== GAME OVER ===")
-        return False # Retorna falso se o jogador perdeu
-    elif inimigo_hp <= 0:
-        print(f"✨ O espírito de {inimigo_nome} solta um último clamor e desaparece...")
-        print("=== CÔMODO PURIFICADO ===")
-        return True # Retorna verdadeiro se venceu
+    if personagem["hp_atual"] <= 0:
+        print("\n💀 FIM DE JOGO. A escuridão te consumiu...")
+        return False
+    else:
+        print(f"\n✨ Você derrotou {dados_monstro['nome']}!")
+        if dados_monstro["drop"]:
+            item_dropado = dados_monstro["drop"]
+            personagem["inventario"].append(item_dropado)
+            print(f"🔑 [DROP DE ITEM] O espírito se desfez e deixou cair: {item_dropado.upper()}!")
+            print(f"Inventário Atual: {personagem['inventario']}")
+        return True
 
+def manifestacao_sobrenatural(pistas, ato):
+    # Define o total de pistas possíveis baseado no ato para calcular a performance
+    total_pistas = 3 if ato == "ato2" else 5
+    
+    print("\n🔮 [SINTONIA SOBRENATURAL]")
+    print("Ao desvendar os segredos do ambiente, uma energia gélida ecoa pela sala...")
+    
+    # CASO 1: Investigação Perfeita (100% das pistas importantes encontradas)
+    if pistas == total_pistas:
+        print("\n👁️ LAMPEJO DE LUCIDEZ: Sua mente se conecta perfeitamente ao passado!")
+        print("Uma névoa densa espanta o cansaço do seu corpo e materializa o impossível:")
+        print("-> [RESTAURAÇÃO]: Seu HP foi completamente regenerado pelo vigor espiritual!")
+        print("-> [MATERIALIZAÇÃO]: Duas balas de éter surgem no tambor da sua pistola! (+2 Munição)")
+        
+        personagem["hp_atual"] = personagem["hp_max"]
+        personagem["habilidades"]["pistola"]["mun_atual"] = min(
+            personagem["habilidades"]["pistola"]["mun_atual"] + 2, 
+            personagem["habilidades"]["pistola"]["mun_max"]
+        )
 
-    # ==========================================
-    # FLUXO PRINCIPAL DO PROGRAMA
-    # ==========================================
+    # CASO 2: Investigação Parcial (Achou pelo menos metade das pistas importantes)
+    elif pistas >= (total_pistas / 2):
+        print("\n👻 ECO DOS MORTOS: O ambiente sussurra fragmentos da verdade.")
+        print("A compreensão parcial dos fatos estabiliza sua sanidade e fecha suas feridas leves.")
+        print("-> [CONFORTO MÓRBIDO]: Você absorve a energia do local, recuperando 30 de HP.")
+        
+        personagem["hp_atual"] = min(personagem["hp_atual"] + 30, personagem["hp_max"])
+        
+    # CASO 3: Investigação Ruim (Ignorou as pistas)
+    else:
+        print("\n🖤 O HORROR TE SUFOCA: Você ignorou os detalhes cruciais do ambiente...")
+        print("A ignorância deixa sua mente exposta ao medo. O ar parece mais pesado e hostil.")
+        print("-> [SUSSURROS ANGOSTIANTES]: Nada acontece. Um calafrio corta sua espinha.")
+        
+    input('\n[Aperte Enter para encarar o espírito...]')
+
+# ==========================================
+# FLUXO PRINCIPAL DO PROGRAMA
+# ==========================================
 
 print('Jogo Teste\n')
 print('Menu\n1 - Novo Jogo \n2 - Carregar Save \n3 - Sair')
 
 try:
-        menu = int(input('Digite o número da sua escolha\nR: '))
+    menu = int(input('Digite o número da sua escolha\nR: '))
 except ValueError:
-        menu = 3
+    menu = 3
 
 if menu == 1:
-        mostrar_cutscene_inicial(personagem["nome"])
+    mostrar_cutscene_inicial(personagem["nome"])
+    
+    while True:
+        print('\n----')
+        print('Você olha para a casa. Ela é uma casa comum de dois andares,\nvocê consegue ver algumas luzes acesas pela janela.')
+        print('A cada segundo que você passa olhando essa casa, mais estranha ela parece,')
+        print('como se um ar de decadência e morte estivesse presente nela.')
+        print(f'\nOpções de escolha:\n1 - Estou pensando demais, vamos terminar logo isso...\n2 - Isso não vai dar bom... (Desistir)')
         
-        while True:
-            print('\n----')
-            print('Você olha para a casa. Ela é uma casa comum de dois andares,\nvocê consegue ver algumas luzes acesas pela janela.')
-            print('A cada segundo que você passa olhando essa casa, mais estranha ela parece,')
-            print('como se um ar de decadência e morte estivesse presente nela.')
-            print(f'\nOpções de escolha:\n1 - Estou pensando demais, vamos terminar logo isso...\n2 - Isso não vai dar bom... (Desistir)')
-            
-            try:
-                escolha = int(input(f'R: '))
-            except ValueError:
-                escolha = 1
+        try:
+            escolha = int(input(f'R: '))
+        except ValueError:
+            escolha = 1
 
-            if escolha == 1:
-                print('\nVocê pega a chave da casa e entra.')
-                print('Você passa pelos corredores até que chega na sala de estar.')
-                print('Logo é possível perceber uma taça de vinho e suas taças em uma mesinha,')
-                print('mas o que mais chama atenção é a demarcação de um cadáver no chão e sangue.')
-                print('"Lá vamos nós..."')
-            
-            # --- EXECUÇÃO DO ATO 1 ---
-            pistas_ato1 = iniciar_investigacao("ato1")
-            vitoria_ato1 = iniciar_combate(pistas_ato1, "monstro_ato1")
-            
-            # Se o jogador morreu no Ato 1, encerra a execução aqui
-            if not vitoria_ato1:
-                break
-                
-            # --- TRANSIÇÃO PARA O ATO 2 ---
-            print('\n' + '='*60)
-            print('           ATO 2: OS HORRORES DA COZINHA')
-            print('='*60)
-            print('O silêncio retorna à sala de estar, mas ainda tem mais coisas a investigar,')
-            print('você vai para a cozinha, quartos mas não encontra nada de relevante neles.')
-            print('mas quando chega num certo corredor você encontra outra demarcação de cadaver.')
-            print('Você limpa o suor do rosto e se prepara para qulaquer outra coisa que está por vir... ')
-            input('\n[Investigar corredor...]')
-            
-            # --- EXECUÇÃO DO ATO 2 ---
-            pistas_ato2 = iniciar_investigacao("ato2")
-            vitoria_ato2 = iniciar_combate(pistas_ato2, "monstro_ato2")
-            
-            if not vitoria_ato2:
-                break
-                
-            # --- TRANSIÇÃO PARA OS PRÓXIMOS ATOS (PORÃO / QUARTO) ---
-            print("\nVocê ouve um estalo vindo das escadas do segundo andar...")
-            print("Continua no próximo ato!")
+        if escolha == 1:
+            print('\nVocê pega a chave da casa e entra.')
+            print('Você passa pelos corredores até que chega na sala de estar.')
+            print('Logo é possível perceber uma taça de vinho e suas taças em uma mesinha,')
+            print('mas o que mais chama atenção é a demarcação de um cadáver no chão e sangue.')
+            print('"Lá vamos nós..."')
+        
+        # --- EXECUÇÃO DO ATO 1 ---
+        pistas_ato1 = iniciar_investigacao("ato1")
+        
+        # <<< MUDANÇA AQUI: Inserir a manifestação antes do combate >>>
+        manifestacao_sobrenatural(pistas_ato1, "ato1")
+        
+        vitoria_ato1 = combate(bestiario[1])
+        
+        if not vitoria_ato1:
             break
 
+        # --- TRANSIÇÃO PARA O ATO 2 ---
+        print('\n' + '='*60)
+        print('           ATO 2: PUNHOS FECHADOS')
+        print('='*60)
+        print('O silêncio retorna à sala de estar, mas a atmosfera fica ainda mais pesada.')
+        print('Ao avançar pelo corredor estreito que conecta a casa, o ar gela instantaneamente.')
+        print('No chão, outra demarcação de cadáver em giz revela que a violência continuou aqui.')
+        print('Você limpa o suor do rosto, saca sua arma e se prepara para o pior... ')
+        input('\n[Investigar corredor...]')
+        
+        # --- EXECUÇÃO DO ATO 2 ---
+        pistas_ato2 = iniciar_investigacao("ato2")
+        
+        # <<< MUDANÇA AQUI: Inserir a manifestação antes do combate >>>
+        manifestacao_sobrenatural(pistas_ato2, "ato2")
+        
+        vitoria_ato2 = combate(bestiario[2])
+        
+        if not vitoria_ato2:
+            break
+        # --- TRANSIÇÃO PARA OS PRÓXIMOS ATOS (PORÃO / QUARTO) ---
+        print("\nVocê ouve um estalo vindo das escadas do segundo andar...")
+        print("Continua no próximo ato!")
+        break
+
 elif menu == 2:
-        print('\nAinda em desenvolvimento (o desenvolvedor narigudo não veio).')
+    print('\nAinda em desenvolvimento (o desenvolvedor narigudo não veio).')
 elif menu == 3:
-        print('\nPorque tu entrou no meu jogo se tu ia sair?\nAinda sim, muito obrigado por ter perdido o seu tempo :)')
+    print('\nPorque tu entrou no meu jogo se tu ia sair?\nAinda sim, muito obrigado por ter perdido o seu tempo :)')
