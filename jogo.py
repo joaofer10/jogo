@@ -11,11 +11,11 @@ personagem = {
     "inventario": [],  
     "habilidades": {
         "cassetete": {
-            "dano": 10,
+            "dano": 15,
             "tipo": "contudente",
         },  
         "pistola": {
-            "dano": 25,
+            "dano": 30,
             "mun_max": 12,
             "mun_atual": 12,
             "tipo": "perfurante",
@@ -39,29 +39,29 @@ bestiario = {
     },
     2: {
         "id": 2,
-        "nome": "amante (Espírito Furioso)",
-        "hp_max": 55,  
-        "hp_atual": 55,
+        "nome": "Espírito do Amante",
+        "hp_max": 130,      # Aumentado (era menor, o que tornava a luta curta)
+        "hp_atual": 130,
+        "fraqueza": "perfurante",   # Removida a fraqueza para a pistola não dar dano dobrado fácil
         "habilidades": {
-            1: {"ataque": "gancho", "dano": 20},
-            2: {"ataque": "dilacerar", "dano": 25},
-            3: {"ataque": "ansioso", "dano": 0} 
+            1: {"ataque": "Lamento Dilacerante", "dano": 18},
+            2: {"ataque": "Toque Gélido", "dano": 22}
         },
-        "fraqueza": "perfurante",
-        "drop": "Chave do Porão"  
+        "drop": "Chave do Porão"
     },
     3: {
         "id": 3,
-        "nome": "marido (O Monstro Final)",
-        "hp_max": 150,
-        "hp_atual": 150,
-        "habilidades": {
-            1: {"ataque": "cuspe de veneno", "dano": 22},
-            2: {"ataque": "arranhão venenoso", "dano": 30},
-        },
+        "nome": "O Marido (Demônio do Rancor)",
+        "hp_max": 105,     
+        "hp_atual": 105,
         "fraqueza": None,
-        "drop": "Dossiê do Caso Encerrado"
+        "habilidades": {
+            1: {"ataque": "Cuspe de Veneno", "dano": 15},
+            2: {"ataque": "Arranhão Venenoso", "dano": 20}
+        },
+        "drop": None
     }
+
 }
 
 itens_investigacao = {
@@ -130,7 +130,7 @@ def mostrar_cutscene_inicial(nome_detetive):
     print('(Com um cigarro na boca e cara de cansado, Rubert diz)')
     print(f'Rubert: - Boa noite, {nome_detetive}, como você está?')
     print('\nOpções de resposta:\n1 - Boa noite Rubert, estou bem e você?\n2 - Vamos cortar as apresentações, cadê os outros?\n3 - Que desperdício de palavras.')
-    
+
     try:
         escolha = int(input(f'R: '))
     except ValueError:
@@ -143,7 +143,7 @@ def mostrar_cutscene_inicial(nome_detetive):
         print('Rubert: - Como sempre, priorizando a eficiência...')
     else:
         print('Rubert: - Você sabe que ser assim não te deixa mais maneiro, né?\nIsso parece fala de protagonista de filmes ou jogos de policiais, é vergonhoso.')
-    
+
     print('(Ele apaga o cigarro depois de ter dado uma tragada)')
     input('Digite qualquer tecla para continuar... ')
     print('----')
@@ -158,54 +158,57 @@ def mostrar_cutscene_inicial(nome_detetive):
     input('Digite qualquer tecla para continuar... ')
 
 def iniciar_investigacao(ato):
-        investigacao = 0
-        pistas_importantes_encontradas = 0
-        itens_do_ato = itens_investigacao[ato]
+    investigacao = 0
+    pistas_importantes_encontradas = 0
+    itens_do_ato = itens_investigacao[ato]
+    
+    # MUDANÇA AQUI: Para os Atos 2 e 3, o limite agora é 2 itens vistos (deixando 1 de fora)
+    limite = 2 if ato in ["ato2", "ato3"] else 5
+
+    while investigacao < limite:
+        print(f'\n--- Progresso da Investigação: {investigacao}/{limite} itens vistos ---')
+        print('Onde você deseja olhar agora?')
         
-        # Define o limite dinamicamente por ato
-        limite = 3 if ato in ["ato2", "ato3"] else 5
+        for id_item, info in itens_do_ato.items():
+            if not info["visto"]:
+                print(f"{id_item} - Analisar {info['nome']}")
+            else:
+                print(f"[{id_item} - {info['nome']} (Já investigado)]")
 
-        while investigacao < limite:
-            print(f'\n--- Progresso da Investigação: {investigacao}/{limite} itens vistos ---')
-            print('Onde você deseja olhar agora?')
+        try:
+            escolha_item = int(input('\nR: '))
+
+            if escolha_item in itens_do_ato:
+                if not itens_do_ato[escolha_item]["visto"]:
+                    itens_do_ato[escolha_item]["visto"] = True
+                    investigacao += 1
+
+                    print("\n========================================")
+                    print(f"🔎 {itens_do_ato[escolha_item]['nome'].upper()}:")
+                    print(itens_do_ato[escolha_item]["lore"])
+                    print("========================================")
+
+                    if itens_do_ato[escolha_item]["importante"]:
+                        pistas_importantes_encontradas += 1
+                        
+                    input('\n[Aperte Enter para continuar]')
+                else:
+                    print('\n[!] Você já revirou esse lugar. Escolha outro ponto de interesse!')
+            else:
+                print('\n[!] Esse ponto não parece relevante. Escolha um número da lista.')
+
+        except ValueError:
+            print('\n[!] Digite apenas o número correspondente ao item.')
             
-            for id_item, info in itens_do_ato.items():
-                if not info["visto"]:
-                    print(f"{id_item} - Analisar {info['nome']}")
-                else:
-                    print(f"[{id_item} - {info['nome']} (Já investigado)]")
-
-            try:
-                escolha_item = int(input('\nR: '))
-                
-                if escolha_item in itens_do_ato:
-                    if not itens_do_ato[escolha_item]["visto"]:
-                        itens_do_ato[escolha_item]["visto"] = True
-                        investigacao += 1
-                        
-                        print("\n========================================")
-                        print(f"🔎 {itens_do_ato[escolha_item]['nome'].upper()}:")
-                        print(itens_do_ato[escolha_item]["lore"])
-                        print("========================================")
-                        
-                        if itens_do_ato[escolha_item]["importante"]:
-                            pistas_importantes_encontradas += 1
-                            
-                        input('\n[Aperte Enter para continuar]')
-                    else:
-                        print('\n[!] Você já revirou esse lugar. Escolha outro ponto de interesse!')
-                else:
-                    print('\n[!] Esse ponto não parece relevante. Escolha um número da lista.')
-                    
-            except ValueError:
-                print('\n[!] Digite apenas o número correspondente ao item.')
-                
-        return pistas_importantes_encontradas
+    return pistas_importantes_encontradas
 
 def combate(dados_monstro):
     nome_player = personagem["nome"]
     pistola = personagem["habilidades"]["pistola"]
     cassetete = personagem["habilidades"]["cassetete"]
+    
+    # Flag local para garantir que a transformação do Marido só aconteça UMA vez
+    furia_ativada = False 
     
     print(f"\n💥 O combate contra {dados_monstro['nome'].upper()} começou!")
     
@@ -236,8 +239,8 @@ def combate(dados_monstro):
                 dano_causado = 0
                 ataque_valido = False
                 
-                if escolha == "pistola":
-                    if  pistola["mun_atual"] > 0:
+                if escolha == "pistola" or "p":
+                    if pistola["mun_atual"] > 0:
                         pistola["mun_atual"] -= 1 
                         dano_causado = pistola["dano"]
                         ataque_valido = True
@@ -248,7 +251,7 @@ def combate(dados_monstro):
                     else:
                         print("\n⚠️ CLIQUE! A pistola está sem munição!")
                         
-                elif escolha == "cassetete":
+                elif escolha == "cassetete" or "c":
                     dano_causado = cassetete["dano"]
                     ataque_valido = True
                     print("\n🏏 TROW! Você desferiu um golpe físico.")
@@ -289,8 +292,27 @@ def combate(dados_monstro):
             case _:
                 print("\n[!] Você hesitou e perdeu o turno!")
 
-        if dados_monstro["id"] == 3 and dados_monstro["hp_atual"] <= dados_monstro["hp_max"] * 0.5 and dados_monstro["hp_atual"] > 0:
-            print("\n🚨 O MARIDO ENTRA EM FÚRIA! Seus ataques parecem mais rápidos!")
+        # --- SISTEMA DE FÚRIA E CURA DO MARIDO (BOSS COMPORTAMENTO) ---
+        if dados_monstro["id"] == 3 and dados_monstro["hp_atual"] <= dados_monstro["hp_max"] * 0.5 and dados_monstro["hp_atual"] > 0 and not furia_ativada:
+            furia_ativada = True
+            
+            # Recupera exatamente 1/3 da vida máxima (50 de HP)
+            recuperacao = int(dados_monstro["hp_max"] / 3) 
+            dados_monstro["hp_atual"] += recuperacao
+            
+            print("\n" + "☠️" * 25)
+            print("🚨 O RANCOR SUPERA A MORTE! O MARIDO ENTRA EM FÚRIA PROFANA!")
+            print("O veneno de rato ferve em sua essência espiritual e o ritual fracassado se manifesta.")
+            print(f"O demônio ruge de pura agonia e ódio, recuperando {recuperacao} de HP!")
+            print("💥 SEUS ATAQUES SE TORNARAM COMPLETAMENTE LETAIS!")
+            print("☠️" * 25)
+            
+                        # Ajuste dentro do IF da fúria do ID 3 na função combate:
+            dados_monstro["habilidades"] = {
+                1: {"ataque": "Erupção de Veneno Macabro", "dano": 20}, 
+                2: {"ataque": "Dilaceração Tóxica", "dano": 26}         
+            }
+
 
     if personagem["hp_atual"] <= 0:
         print("\n💀 FIM DE JOGO. A escuridão te consumiu...")
@@ -305,20 +327,20 @@ def combate(dados_monstro):
         return True
 
 def manifestacao_sobrenatural(pistas, ato):
-    
+
     # Define o total de pistas possíveis baseado no ato
     total_pistas = 3 if ato in ["ato2", "ato3"] else 5
-    
+
     print("\n🔮 [SINTONIA SOBRENATURAL]")
     print("Ao desvendar os segredos do ambiente, uma energia gélida ecoa pela sala...")
-    
+
     # CASO 1: Investigação Perfeita (100% das pistas importantes encontradas)
     if pistas == total_pistas:
         print("\n👁️ LAMPEJO DE LUCIDEZ: Sua mente se conecta perfeitamente ao passado!")
         print("Uma névoa densa espanta o cansaço do seu corpo e materializa o impossível:")
         print("-> [RESTAURAÇÃO]: Seu HP foi completamente regenerado pelo vigor espiritual!")
         print("-> [MATERIALIZAÇÃO]: Duas balas de éter surgem no tambor da sua pistola! (+2 Munição)")
-        
+
         personagem["hp_atual"] = personagem["hp_max"]
         personagem["habilidades"]["pistola"]["mun_atual"] = min(
             personagem["habilidades"]["pistola"]["mun_atual"] + 2, 
@@ -330,15 +352,15 @@ def manifestacao_sobrenatural(pistas, ato):
         print("\n👻 ECO DOS MORTOS: O ambiente sussurra fragmentos da verdade.")
         print("A compreensão parcial dos fatos estabiliza sua sanidade e fecha suas feridas leves.")
         print("-> [CONFORTO MÓRBIDO]: Você absorve a energia do local, recuperando 30 de HP.")
-        
+
         personagem["hp_atual"] = min(personagem["hp_atual"] + 30, personagem["hp_max"])
-        
+
     # CASO 3: Investigação Ruim (Ignorou as pistas)
     else:
         print("\n🖤 O HORROR TE SUFOCA: Você ignorou os detalhes cruciais do ambiente...")
         print("A ignorância deixa sua mente exposta ao medo. O ar parece mais pesado e hostil.")
         print("-> [SUSSURROS ANGOSTIANTES]: Nada acontece. Um calafrio corta sua espinha.")
-        
+
     input('\n[Aperte Enter para encarar o espírito...]')
 
 # ==========================================
@@ -355,14 +377,14 @@ except ValueError:
 
 if menu == 1:
     mostrar_cutscene_inicial(personagem["nome"])
-    
+
     while True:
         print('\n----')
         print('Você olha para a casa. Ela é uma casa comum de dois andares,\nvocê consegue ver algumas luzes acesas pela janela.')
         print('A cada segundo que você passa olhando essa casa, mais estranha ela parece,')
         print('como se um ar de decadência e morte estivesse presente nela.')
         print(f'\nOpções de escolha:\n1 - Estou pensando demais, vamos terminar logo isso...\n2 - Isso não vai dar bom... (Desistir)')
-        
+
         try:
             escolha = int(input(f'R: '))
         except ValueError:
@@ -374,79 +396,57 @@ if menu == 1:
             print('Logo é possível perceber uma taça de vinho e suas taças em uma mesinha,')
             print('mas o que mais chama atenção é a demarcação de um cadáver no chão e sangue.')
             print('"Lá vamos nós..."')
-        
-        # --- EXECUÇÃO DO ATO 1 ---
+
+        # ---         # --- EXECUÇÃO DO ATO 1 ---
         pistas_ato1 = iniciar_investigacao("ato1")
-        
-        # <<< MUDANÇA AQUI: Inserir a manifestação antes do combate >>>
         manifestacao_sobrenatural(pistas_ato1, "ato1")
         
         vitoria_ato1 = combate(bestiario[1])
-        
-        if not vitoria_ato1:
+        if not vitoria_ato1: 
             break
-
-        # --- TRANSIÇÃO PARA O ATO 2 ---
-        print('\n' + '='*60)
-        print('           ATO 2: PUNHOS FECHADOS')
-        print('='*60)
-        print('O silêncio retorna à sala de estar, mas a atmosfera fica ainda mais pesada.')
-        print('Ao avançar pelo corredor estreito que conecta a casa, o ar gela instantaneamente.')
-        print('No chão, outra demarcação de cadáver em giz revela que a violência continuou aqui.')
-        print('Você limpa o suor do rosto, saca sua arma e se prepara para o pior... ')
-        input('\n[Investigar corredor...]')
+            
+        # --- TRANSIÇÃO E EXECUÇÃO DO ATO 2 ---
+        print('\n' + '='*50)
+        print('   ATO 2: O CORREDOR DAS SOMBRAS')
+        print('='*50)
+        print('O ar gela instantaneamente. Marcas de arrasto levam à porta do porão.')
+        print('O espírito furioso do Amante bloqueia o seu caminho!')
+        input('\n[Pressione Enter para investigar o corredor...]')
         
-        # --- EXECUÇÃO DO ATO 2 ---
         pistas_ato2 = iniciar_investigacao("ato2")
-        
-        # <<< MUDANÇA AQUI: Inserir a manifestação antes do combate >>>
         manifestacao_sobrenatural(pistas_ato2, "ato2")
         
         vitoria_ato2 = combate(bestiario[2])
-        
-        if not vitoria_ato2:
-            break
-        # --- TRANSIÇÃO PARA O ATO 3 (O PORÃO) ---
-        print('\nVocê ouve um estalo vindo de uma porta pesada no fim do corredor...')
-        print('É a entrada do porão. Está trancada por correntes pesadas.')
-        
-        # Verifica se o jogador derrotou o amante e pegou a chave
-        if "Chave do Porão" in personagem["inventario"]:
-            print("\n[!] Você usa a CHAVE DO PORÃO deixada pelo espírito do Amante.")
-            print("As correntes caem com um estrondo metálico. O cheiro de podridão e produtos químicos invade suas narinas.")
-            input('\n[Girar a maçaneta e descer os degraus...]')
-        else:
-            print("\nA porta está trancada magneticamente por forças ocultas e você não tem a chave. Fim da linha.")
+        if not vitoria_ato2: 
             break
             
-        print('\n' + '='*60)
-        print('           ATO 3: O RITUAL DA AGONIA (O PORÃO)')
-        print('='*60)
-        print('O porão é escuro, úmido e imundo. Paredes descascadas revelam símbolos profanos.')
-        print('Ao fundo, você consegue ver o horror em seu estado mais puro.')
-        print('Antes de confrontar o mal definitivo, você precisa entender o tamanho da loucura desse homem...')
-        input('\n[Investigar o porão...]')
+        # --- TRANSIÇÃO E EXECUÇÃO DO ATO 3 ---
+        print('\n' + '='*50)
+        print('   ATO 3: O RITUAL DA AGONIA (PORÃO)')
+        print('='*50)
         
-        # --- EXECUÇÃO DO ATO 3 ---
+        if "Chave do Porão" in personagem["inventario"]:
+            print("[!] As correntes caem. Cheiro de podridão e veneno invade o ambiente.")
+            print("O Marido está ao fundo, transformado pelo puro rancor.")
+            input('\n[Pressione Enter para buscar pistas no porão...]')
+        else:
+            print("\nA porta está trancada e você não tem a chave. Fim de linha.")
+            break
+        
         pistas_ato3 = iniciar_investigacao("ato3")
-        
-        # Manifestação sobrenatural antes do chefe final
         manifestacao_sobrenatural(pistas_ato3, "ato3")
         
-        # Luta final contra o Marido (ID 3)
-        # Resetando a fúria para garantir que a mecânica funcione
-        furia_ativada = False 
         vitoria_final = combate(bestiario[3])
         
         if vitoria_final:
-            print('\n' + '='*60)
-            print('🎉 PARABÉNS! VOCÊ SOLUCIONOU O CASO!')
-            print('='*60)
-            print(f'Com o Marido purificado, o Dossiê final foi recuperado.')
-            print('JT caminha para fora da casa enquanto as primeiras luzes da manhã surgem.')
-            print('O terror acabou... por enquanto.')
+            print('\n' + '='*50)
+            print('🎉 CASO ENCERRADO! PARABÉNS!')
+            print('='*50)
+            print('O Marido foi derrotado.')
+            print('JT caminha para fora da casa enquanto o sol nasce. O terror acabou.')
         
-        break # Fim do Loop do jogo principal
+        break
+
 
 elif menu == 2:
     print('\nAinda em desenvolvimento (o desenvolvedor narigudo não veio).')
